@@ -8,12 +8,9 @@ export default function handleProfileSignup(firstName, lastName, fileName) {
 
   // pour gérer les deux promesses
   return Promise.allSettled([signUpPromise, uploadPhotoPromise])
-    .then((results) => {
-      return results.map((result) => {
-        if (result.status === 'fulfilled') {
-          return { status: 'fulfilled', value: result.value };
-        }
-        return { status: 'rejected', reason: result.reason };
-      });
-    });
+    .then((results) => results.map((result) => (result.status === 'fulfilled' 
+          ? { status: 'fulfilled', value: result.value } 
+          : { status: 'rejected', reason: result.reason })
+      )
+    );
 }
