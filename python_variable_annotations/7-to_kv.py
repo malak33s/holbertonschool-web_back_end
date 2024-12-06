@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-''' une fonction qui retourne un tuple avec une chaîne de caractères et un nombre au carré
+''' fonction return tuple avc chaîne de caractères et un nombre au carré
 '''
 from typing import Union, Tuple
 
