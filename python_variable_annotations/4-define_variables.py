@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Ce module contient des variables définies et annotées avec leurs types respectifs.
+module contient variables définies et annotées avec leurs types respectifs.
 """
 
 a: int = 1
