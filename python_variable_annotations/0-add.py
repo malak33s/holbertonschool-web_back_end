@@ -1,7 +1,18 @@
 #!/usr/bin/env python3
-''' une fonction qui ajoute deux nombres décimaux et retourne la somme '''
+"""
+Ce fichier contient une fonction qui ajoute deux nombres décimaux.
+"""
 
 
 def add(a: float, b: float) -> float:
-    # on retourne la somme des deux nombres
+    """
+    Ajoute deux nombres décimaux et retourne leur somme.
+
+    Args:
+        a (float): Le premier nombre.
+        b (float): Le second nombre.
+
+    Returns:
+        float: La somme des deux nombres.
+    """
     return a + b
