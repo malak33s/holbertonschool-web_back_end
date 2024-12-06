@@ -1,19 +1,23 @@
 #!/usr/bin/env python3
 """
-two modules random and asynco
-"""
-import random
-import asyncio
-"""
-ça genere alatoirement de 0 a 10 pcq ya un delai.
+ce module contient une fonction asynchrone qui attend un délai aléatoire
+puis le retourne
 """
 
+import random
+import asyncio
 
 async def wait_random(max_delay: int = 10) -> float:
     """
-    function genrate a random num between 0 and max_delay.
+    attend un délai aléatoire entre 0 et max_delay secondes
+    puis retourne ce délai
+
+    Args:
+    max_delay (int): délai maximum (en secondes), par défaut 10
+
+    Returns:
+    float: le délai généré
     """
-    delay = random.uniform(0, max_delay)
-    # wait without block program
+    delay: float = random.uniform(0, max_delay)
     await asyncio.sleep(delay)
     return delay
