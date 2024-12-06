@@ -4,5 +4,4 @@
 import math
 
 def floor(n: float) -> int:
-    # on retourne l'arrondi vers le bas
     return math.floor(n)
