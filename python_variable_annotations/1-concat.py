@@ -1,6 +1,18 @@
 #!/usr/bin/env python3
-# une fonction qui colle deux chaînes de caractères ensemble
+"""
+Ce fichier contient une fonction qui effectue l'addition de deux nombres décimaux.
+"""
 
-def concat(str1: str, str2: str) -> str:
-    # return combinaison des deux chaînes
-    return str1 + str2
+
+def add(a: float, b: float) -> float:
+    """
+    Ajoute deux nombres décimaux et retourne leur somme.
+
+    Args:
+        a (float): Le premier nombre.
+        b (float): Le second nombre.
+
+    Returns:
+        float: La somme des deux nombres.
+    """
+    return a + b
