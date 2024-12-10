@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-module contient une coroutine pour générer des nombres random.
+Module contient une coroutine pour générer des nombres random.
 """
 
 import asyncio
