@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 """
-Module pour collecter des nombres aléatoires générés
+Module pour collecter des nbrs aléatoire généré
 de manière asynchrone.
 """
 
 from typing import List
 async_generator = __import__('0-async_generator').async_generator
+
+"""
+import typing list and task
+"""
+
 
 async def async_comprehension() -> List[float]:
     """
