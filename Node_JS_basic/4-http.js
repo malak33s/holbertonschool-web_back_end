@@ -1,19 +1,14 @@
-const http = require('http'); // je ramene le module http
+const http = require('http'); // je ramène le module http
 
 // je crée le serveur
-const app = http.createServer((req,res) => {
-// rep avec txt
-res.statusCode = 200; // code succès http
-res.setHeader('Content-Type', 'text/plain'); // txt
-res.end('Hello Holberton School!'); // rep
-
+const app = http.createServer((req, res) => {
+  res.statusCode = 200; // code succès HTTP
+  res.setHeader('Content-Type', 'text/plain'); // définit le type de contenu en texte brut
+  res.end('Hello Holberton School!'); // envoie la réponse
 });
 
-// serveur ecoute port
-app.listen(1245,()=> {
-    console.log('Server is listening on port 1245');
-});
+// serveur écoute sur le port 1245
+app.listen(1245);
 
-// deplcmt de l'app
+// exporte l'application pour respecter les requirements
 module.exports = app;
-
