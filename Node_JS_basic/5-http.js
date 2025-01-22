@@ -1,81 +1,79 @@
-const http = require('http');
-const fs = require('fs');
-const readline = require('readline');
+const http = require('http'); // Import du module http
+const fs = require('fs'); // Import du module fs pour la lecture de fichiers
 
-// lis et analyse file CSV
-function readStudentsFromFile(filePath) {
-  const students = {
-    CS: [],
-    SWE: [],
-  };
+// Fonction pour compter les étudiants
+function countStudents(path) {
+    return new Promise((resolve, reject) => {
+        fs.readFile(path, 'utf-8', (err, data) => {
+            if (err) {
+                reject(new Error('Cannot load the database'));
+                return;
+            }
 
-  // lis file CSV
-  const rl = readline.createInterface({
-    input: fs.createReadStream(filePath),
-    output: process.stdout,
-    terminal: false
-  });
+            const lines = data.split('\n').filter((line) => line.trim() !== '' && line.indexOf('firstname,') === -1);
+            const students = [];
+            const fields = {};
 
-  rl.on('line', (line) => {
-    const student = line.split(','); // séparer colonnes CSV virgule
-    if (student.length === 2) { // veriifie ligne deux valeurs
-      const name = student[0].trim();
-      const specialization = student[1].trim();
-      if (specialization === 'CS') {
-        students.CS.push(name);
-      } else if (specialization === 'SWE') {
-        students.SWE.push(name);
-      }
-    }
-  });
+            // Parcours des lignes pour créer des étudiants
+            lines.forEach((line) => {
+                const [firstname, , , field] = line.split(',');
+                if (firstname && field) {
+                    students.push({ firstname, field });
 
-  return new Promise((resolve) => {
-    rl.on('close', () => {
-      resolve(students);
+                    if (!fields[field]) {
+                        fields[field] = [];
+                    }
+                    fields[field].push(firstname); // Ajout du prénom dans le champ correspondant
+                }
+            });
+
+            const total = students.length; // Nombre total d'étudiants
+
+            // Préparation des données par champ
+            const result = {
+                total,
+                fields,
+            };
+
+            resolve(result);
+        });
     });
-  });
 }
 
-// créer serveur http
-const app = http.createServer(async (req, res) => {
-  const url = req.url;
-  const filePath = process.argv[2]; // chemin du fichier passé en arg
+// Création du serveur
+const app = http.createServer((req, res) => {
+    if (req.url === '/') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('Hello Holberton School!');
+    } else if (req.url === '/students') {
+        const databaseFile = process.argv[2]; // Récupération du chemin de la base de données
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
 
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
+        res.write('This is the list of our students\n');
+        countStudents(databaseFile)
+            .then((data) => {
+                const { total, fields } = data;
 
-  if (url === '/') {
-    res.end('Hello Holberton School!');
-  } else if (url === '/students') {
-    if (!filePath) {
-      res.end('No database file provided');
-      return;
+                res.write(`Number of students: ${total}\n`);
+
+                // Ajout des données par champ
+                Object.keys(fields).forEach((field) => {
+                    const list = fields[field].join(', '); // Concaténation des prénoms
+                    res.write(`Number of students in ${field}: ${fields[field].length}. List: ${list}\n`);
+                });
+
+                res.end();
+            })
+            .catch((err) => {
+                res.end(`${err.message}\n`);
+            });
     }
-
-    try {
-      const students = await readStudentsFromFile(filePath);
-      const csList = students.CS.join(', ');
-      const sweList = students.SWE.join(', ');
-      const studentCount = students.CS.length + students.SWE.length;
-      
-      res.write('This is the list of our students\n');
-      res.write(`Number of students: ${studentCount}\n`);
-      res.write(`Number of students in CS: ${students.CS.length}. List: ${csList}\n`);
-      res.write(`Number of students in SWE: ${students.SWE.length}. List: ${sweList}\n`);
-      res.end();
-    } catch (error) {
-      res.end('Error reading database file');
-    }
-  } else {
-    res.statusCode = 404;
-    res.end('Not Found');
-  }
 });
 
-// je lance serveur sur 1245
+// Le serveur écoute le port 1245
 app.listen(1245, () => {
-  console.log('Server is listening on port 1245');
+    console.log('Server is listening on port 1245');
 });
 
-// dplc l'app pour test
+// Exportation de l'app
 module.exports = app;
