@@ -2,6 +2,7 @@ module.exports = {
     env: {
       browser: true,
       es2021: true,
+      node: true, // Ajouté pour reconnaître les globals de Node.js
     },
     extends: ['eslint:recommended'],
     parserOptions: {
@@ -9,7 +10,7 @@ module.exports = {
       sourceType: 'module',
     },
     rules: {
-      // Ajouter vos règles ici
+      // Vous pouvez ajouter ou modifier des règles ici selon vos préférences
     },
   };
   
