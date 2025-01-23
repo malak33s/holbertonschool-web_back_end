@@ -1,37 +1,6 @@
 const express = require('express'); // j'importe express
-const fs = require('fs'); // j'importe fs pour lire les fichiers csv
+const countStudents = require('./3-read_file_async'); // j'importe la fonction countStudents de 3-read_file_async.js
 const { argv } = require('process'); // je récupère les arguments de la commande
-
-// fonction pour lire le fichier csv et compter les étudiants
-function countStudents(database) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(database, 'utf8', (err, data) => {
-      if (err) {
-        reject(new Error('Cannot load the database'));
-        return;
-      }
-
-      const lines = data.split('\n').filter((line) => line.trim() !== ''); // je filtre les lignes vides
-      const students = lines.slice(1); // je retire la première ligne (en-tête)
-      const studentCount = students.length;
-
-      const fields = {};
-      students.forEach((student) => {
-        const [name, , field] = student.split(','); // je récupère les données des colonnes
-        if (!fields[field]) {
-          fields[field] = [];
-        }
-        fields[field].push(name);
-      });
-
-      let response = `Number of students: ${studentCount}`;
-      for (const [field, names] of Object.entries(fields)) {
-        response += `\nNumber of students in ${field}: ${names.length}. List: ${names.join(', ')}`;
-      }
-      resolve(response);
-    });
-  });
-}
 
 // je crée une instance express
 const app = express();
@@ -43,4 +12,19 @@ app.get('/', (req, res) => {
 });
 
 // route pour /students
-app.get('/students', (req, res) => 
+app.get('/students', (req, res) => {
+  res.set('Content-Type', 'text/plain'); // je précise que la réponse est en texte brut
+  countStudents(argv[2])
+    .then(() => {
+      res.send(`This is the list of our students`);
+    })
+    .catch((err) => {
+      res.send(err.message); // si erreur, message d'erreur
+    });
+});
+
+// le serveur écoute sur le port 1245
+app.listen(1245);
+
+// j'exporte l'application
+module.exports = app;
