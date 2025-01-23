@@ -1,63 +1,46 @@
-const express = require('express') // j'importe express pour créer le serveur
-const fs = require('fs') // j'importe fs pour lire les fichiers csv
-const { argv } = require('process') // je récupère les arguments passés dans la commande
+const express = require('express'); // j'importe express
+const fs = require('fs'); // j'importe fs pour lire les fichiers csv
+const { argv } = require('process'); // je récupère les arguments de la commande
 
-// je crée une fonction pour lire le fichier csv et récupérer les données des étudiants
+// fonction pour lire le fichier csv et compter les étudiants
 function countStudents(database) {
   return new Promise((resolve, reject) => {
     fs.readFile(database, 'utf8', (err, data) => {
       if (err) {
-        reject(new Error('cannot load the database'))
-        return
+        reject(new Error('Cannot load the database'));
+        return;
       }
 
-      const lines = data.split('\n').filter((line) => line.trim() !== '') // je supprime les lignes vides
-      const students = lines.slice(1) // je supprime la première ligne (en-tête)
-      const studentCount = students.length
+      const lines = data.split('\n').filter((line) => line.trim() !== ''); // je filtre les lignes vides
+      const students = lines.slice(1); // je retire la première ligne (en-tête)
+      const studentCount = students.length;
 
-      const fields = {}
+      const fields = {};
       students.forEach((student) => {
-        const [name, , field] = student.split(',')
+        const [name, , field] = student.split(','); // je récupère les données des colonnes
         if (!fields[field]) {
-          fields[field] = []
+          fields[field] = [];
         }
-        fields[field].push(name)
-      })
+        fields[field].push(name);
+      });
 
-      let response = `number of students: ${studentCount}\n`
+      let response = `Number of students: ${studentCount}`;
       for (const [field, names] of Object.entries(fields)) {
-        response += `number of students in ${field}: ${names.length}. list: ${names.join(', ')}\n`
+        response += `\nNumber of students in ${field}: ${names.length}. List: ${names.join(', ')}`;
       }
-      resolve(response.trim())
-    })
-  })
+      resolve(response);
+    });
+  });
 }
 
 // je crée une instance express
-const app = express()
+const app = express();
 
-// je définis la route pour /
+// route pour /
 app.get('/', (req, res) => {
-  res.set('Content-Type', 'text/plain')
-  res.send('hello holberton school!')
-})
+  res.set('Content-Type', 'text/plain'); // je précise que la réponse est en texte brut
+  res.send('Hello Holberton School!');
+});
 
-// je définis la route pour /students
-app.get('/students', (req, res) => {
-  res.set('Content-Type', 'text/plain')
-  countStudents(argv[2])
-    .then((output) => {
-      res.send(`this is the list of our students\n${output}`)
-    })
-    .catch((err) => {
-      res.send(err.message)
-    })
-})
-
-// j'écoute sur le port 1245
-app.listen(1245, () => {
-  console.log('server running on port 1245')
-})
-
-// j'exporte l'application
-module.exports = app
+// route pour /students
+app.get('/students', (req, res) => 
