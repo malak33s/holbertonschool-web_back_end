@@ -1,62 +1,55 @@
-const http = require('http') // j'importe le module http pour créer le serveur
-const fs = require('fs') // j'importe le module fs pour lire les fichiers
-const { argv } = require('process') // je récupère les arguments passés dans la commande
+const http = require('http');
+const fs = require('fs');
 
-// je crée une fonction pour lire le fichier csv et compter les étudiants
-function countStudents(database) {
-  return new Promise((resolve, reject) => {
-    fs.readFile(database, 'utf8', (err, data) => {
-      if (err) {
-        reject(new Error('cannot load the database'))
-        return
-      }
-
-      const lines = data.split('\n').filter((line) => line.trim() !== '') // je supprime les lignes vides
-      const students = lines.slice(1) // je supprime la première ligne (en-tête)
-      const studentCount = students.length
-
-      const fields = {}
-      students.forEach((student) => {
-        const [name, , field] = student.split(',')
-        if (!fields[field]) {
-          fields[field] = []
-        }
-        fields[field].push(name)
-      })
-
-      let response = `number of students: ${studentCount}\n`
-      for (const [field, names] of Object.entries(fields)) {
-        response += `number of students in ${field}: ${names.length}. list: ${names.join(', ')}\n`
-      }
-      resolve(response.trim())
-    })
-  })
-}
-
-// je crée un serveur http
-const app = http.createServer((req, res) => {
-  const { url } = req
-
-  if (url === '/') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    res.end('hello holberton school!')
-  } else if (url === '/students') {
-    res.writeHead(200, { 'Content-Type': 'text/plain' })
-    countStudents(argv[2])
-      .then((output) => {
-        res.end(`this is the list of our students\n${output}`)
-      })
-      .catch((err) => {
-        res.end(err.message)
-      })
-  } else {
-    res.writeHead(404, { 'Content-Type': 'text/plain' })
-    res.end('not found')
+const countStudents = (path) => {
+  let data;
+  try {
+    data = fs.readFileSync(path, 'utf-8');
+  } catch (error) {
+    throw new Error('Cannot load the database');
   }
-})
 
-// j'écoute sur le port 1245
-app.listen(1245)
+  const lines = data.trim().split('\n');
+  const students = lines.slice(1).map((line) => line.split(',')); // Ignorer l'en-tête
+  const fields = {};
 
-// j'exporte le serveur
-module.exports = app
+  students.forEach((student) => {
+    const field = student[3]; // Champ "field"
+    const firstName = student[0]; // Prénom
+    if (!fields[field]) fields[field] = [];
+    fields[field].push(firstName);
+  });
+
+  const totalStudents = students.length;
+  let output = `Number of students: ${totalStudents}\n`;
+
+  Object.keys(fields).forEach((field) => {
+    const names = fields[field].join(', ');
+    output += `Number of students in ${field}: ${fields[field].length}. List: ${names}\n`;
+  });
+
+  return output.trim();
+};
+
+const app = http.createServer((req, res) => {
+  if (req.url === '/students') {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.write('This is the list of our students\n');
+    try {
+      const path = process.argv[2];
+      const output = countStudents(path);
+      res.write(`${output}\n`);
+    } catch (error) {
+      res.write(`${error.message}\n`);
+    }
+    res.end();
+  } else {
+    res.end('Hello World!');
+  }
+});
+
+app.listen(1245, () => {
+  console.log('Server running on port 1245');
+});
+
+module.exports = app;
